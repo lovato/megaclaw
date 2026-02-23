@@ -1,48 +1,29 @@
 # OpenClaw Docker Container
 
-Self-hosted AI assistant with browser automation using https://openclaw.ai/ wrapped in a container.
+Self-hosted AI assistant with browser automation.
 
 ## Quick Start
 
 ```bash
-./build.sh          # Build the Docker image
+./build.sh          # Build the container image
 ./run.sh            # Run the container
+```
+
+## First Run
+
+On first run, complete onboarding:
+
+```bash
+podman run -it -v ./data:/home/node/.openclaw openclaw-local openclaw onboard
 ```
 
 ## What This Provides
 
-- **OpenClaw** - Installed via official `curl -fsSL https://openclaw.ai/install.sh`
+- **OpenClaw** - Installed via official installer
 - **Playwright** - Browser automation (from base image)
-- **Node.js 22** - Installed automatically by OpenClaw installer
+- **Node.js 22** - Installed automatically
 
-## Environment
+## Notes
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `OPENCLAW_GATEWAY_PORT` | 18789 | Gateway port |
-
-## First Run
-
-On first run, you'll need to complete onboarding to configure API keys and channels:
-
-```bash
-podman run -it openclaw-local openclaw onboard
-```
-
-To run the gateway:
-
-```bash
-podman run -it openclaw-local
-```
-
-For persistence, mount config:
-
-```bash
-podman run -it -v ./config:/home/node/.openclaw openclaw-local
-```
-
-## Build Notes
-
-- Uses official OpenClaw installer script
-- Skips onboard during build (`--no-onboard`)
-- Includes Playwright browsers for AI web automation
+- Uses `podman` (not docker)
+- `./run.sh` mounts `./data` for config persistence at `/home/node/.openclaw`
