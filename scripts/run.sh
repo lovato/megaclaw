@@ -1,3 +1,4 @@
+#!/bin/bash
 podman run -it --rm \
   --name openclaw \
   --ipc=host \
