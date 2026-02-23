@@ -5,8 +5,8 @@ Self-hosted AI assistant with browser automation.
 ## Quick Start
 
 ```bash
-./build.sh          # Build the container image
-./run.sh            # Run the container
+task build          # Build the container image
+task run            # Run the container
 ```
 
 ## First Run
@@ -14,7 +14,7 @@ Self-hosted AI assistant with browser automation.
 On first run, complete onboarding:
 
 ```bash
-podman run -it -v ./data:/home/node/.openclaw openclaw-local openclaw onboard
+task onboard
 ```
 
 ## What This Provides
@@ -26,4 +26,5 @@ podman run -it -v ./data:/home/node/.openclaw openclaw-local openclaw onboard
 ## Notes
 
 - Uses `podman` (not docker)
-- `./run.sh` mounts `./data` for config persistence at `/home/node/.openclaw`
+- `./db` is mounted for config persistence at `/home/node/.openclaw`
+- Run `task --list` to see all available tasks
