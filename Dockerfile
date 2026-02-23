@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
     apt-get install -y curl && \
-    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --skip-setup
+    curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 
 WORKDIR /app
 
