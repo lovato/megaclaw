@@ -4,12 +4,16 @@ tasks:
   build:
     desc: Build the OpenClaw container image
     cmds:
-      - ./scripts/build.sh
+      - podman build --cgroup-manager=cgroupfs --security-opt label=disable -t openclaw-local .
 
   run:
     desc: Run the OpenClaw container
     cmds:
-      - ./scripts/run.sh
+      - podman run -it --rm \
+        --name openclaw \
+        --ipc=host \
+        -v ./db:/home/node/.openclaw \
+        openclaw-local
 
   onboard:
     desc: Run onboarding for first-time setup
