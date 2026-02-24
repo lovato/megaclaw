@@ -19,8 +19,8 @@ tasks:
     desc: Run the OpenClaw Runtime container (interactive)
     silent: true
     preconditions:
-      - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
-        msg: "Error: /db is empty. Run 'task build:runtime' first."
+      - sh: podman image exists openclaw-runtime
+        msg: "Error: Runtime image not found. Run 'task build:runtime' first."
     cmds:
       - ./scripts/run.sh
 
@@ -28,8 +28,8 @@ tasks:
     desc: Start OpenClaw Runtime container in the background
     silent: true
     preconditions:
-      - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
-        msg: "Error: /db is empty. Run 'task onboard' first."
+      - sh: podman image exists openclaw-runtime
+        msg: "Error: Runtime image not found. Run 'task build:runtime' first."
     cmds:
       - ./scripts/run.sh daemon
 
@@ -53,4 +53,4 @@ tasks:
     silent: true
     cmds:
       - rm -rf ./db/*
-      - echo "Database wiped. Run 'task onboard' to reconfigure."
+      - echo "Database wiped. Run 'task build:runtime' to reconfigure."
