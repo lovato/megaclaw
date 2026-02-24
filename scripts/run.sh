@@ -2,5 +2,6 @@
 podman run -it --rm \
   --name openclaw \
   --ipc=host \
+  -p 18789:18789 \
   -v ./db:/home/node/.openclaw \
   openclaw-local
