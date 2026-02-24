@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This repository contains a Dockerfile for building an OpenClaw container with Playwright browser automation.
+This repository contains Dockerfiles for building OpenClaw containers with Playwright browser automation.
 
 ## What is OpenClaw?
 
@@ -11,35 +11,54 @@ This repository contains a Dockerfile for building an OpenClaw container with Pl
 ## Key Details
 
 - **Default container tool**: `podman` (not docker)
-- **Build command**: `./build.sh`
-- **Run command**: `./run.sh` or `podman run -it openclaw-base`
-- **Image name**: `openclaw-base`
+- **Tasks**: Use `task --list` to see available commands
+- **Images**: `openclaw-base` (with Homebrew), `openclaw-runtime` (onboarded)
+
+## Images
+
+### openclaw-base
+- Base image with OpenClaw, Homebrew, Playwright browsers
+- Built from `Dockerfile.base`
+
+### openclaw-runtime
+- Runtime image with onboarded config baked in
+- Built from `Dockerfile.runtime`
+- Ready to run `openclaw gateway`
 
 ## Build Process
 
-The Dockerfile:
+The base Dockerfile:
 1. Uses `mcr.microsoft.com/playwright:v1.41.0-jammy` as base (includes browsers)
-2. Runs the official OpenClaw installer: `curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard`
-3. Installs Node.js 22 automatically
-4. Sets gateway port to 18789
+2. Installs build-essential, procps, file
+3. Installs Homebrew
+4. Runs the official OpenClaw installer: `curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard`
 
 ## Common Commands
 
 ```bash
-# Build the image
-./build.sh
+# Build base image
+task build:base
 
-# Run interactively
-podman run -it openclaw-base
+# Build runtime image (runs onboard interactively)
+task build:runtime
 
-# Run with config persistence
-podman run -it -v ./config:/home/node/.openclaw openclaw-base
+# Run OpenClaw (interactive)
+task run
 
-# Run gateway
-podman run -it openclaw-base openclaw gateway
+# Run in background
+task start
+
+# Stop container
+task stop
+
+# Shell into containers
+task ssh:base
+task ssh:runtime
 ```
 
 ## Notes
 
-- On first run, complete onboarding: `openclaw onboard`
+- Run `task build:runtime` first - this runs onboarding interactively
+- After onboard, the config is baked into the runtime image
+- Use `task run` or `task start` to run the gateway on port 18789
 - Playwright browsers are pre-installed in the base image for AI web automation

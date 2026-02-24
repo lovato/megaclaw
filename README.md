@@ -1,37 +1,39 @@
 # OpenClaw Docker Container
 
-Lobster in a fishtank!
-
 Self-hosted AI assistant with browser automation.
 
 ## Quick Start
 
 ```bash
-task build          # Build the container image
-task run            # Run the container
-```
-
-## First Run
-
-On first run, complete onboarding:
-
-```bash
-task onboard
+task build:base        # Build the base container image
+task build:runtime     # Build runtime with onboarding baked in
+task run              # Run the container (interactive)
 ```
 
 ## Tasks
 
 ```bash
-task build          # Build the container image
-task run            # Run the container (requires prior onboarding)
-task onboard        # Run onboarding wizard
-task wipe           # Wipe all data and reset
+task build:base        # Build base image (OpenClaw + Homebrew)
+task build:runtime    # Build runtime image + run onboard
+task run              # Run OpenClaw (interactive)
+task start            # Run OpenClaw in background
+task stop             # Stop the running container
+task ssh:base         # Shell into base image
+task ssh:runtime      # Shell into runtime image
+task wipe             # Wipe all data and reset
 ```
+
+## First Run
+
+1. Build base: `task build:base`
+2. Build runtime (runs onboard): `task build:runtime`
+3. Run: `task run` or `task start`
 
 ## What This Provides
 
 - **OpenClaw** - Installed via official installer
 - **Playwright** - Browser automation (from base image)
+- **Homebrew** - Installed in base image
 - **Node.js 22** - Installed automatically
 
 ## What do you need?
@@ -44,5 +46,6 @@ task wipe           # Wipe all data and reset
 ## Notes
 
 - Uses `podman` (not docker)
-- `./db` is mounted for config persistence at `/home/node/.openclaw`
+- `./db` is mounted for config persistence at `/root/.openclaw`
+- `./logs` is mounted for OpenClaw logs
 - Run `task --list` to see all available tasks
