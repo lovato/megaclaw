@@ -17,7 +17,8 @@ tasks:
   onboard:
     desc: Run onboarding for first-time setup
     cmds:
-      - podman run -it -p 18789:18789 -v ./db:/home/node/.openclaw openclaw-local openclaw onboard
+      - podman run -it -p 18789:18789 -v ./db:/root/.openclaw openclaw-local openclaw onboard
+      - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   wipe:
     desc: Wipe the database (remove all config and data)
