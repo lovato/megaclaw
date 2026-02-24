@@ -28,6 +28,11 @@ tasks:
     cmds:
       - podman stop openclaw
 
+  ssh:
+    desc: Jump into the container interactively (no openclaw running)
+    cmds:
+      - podman run -it --rm -v ./db:/root/.openclaw openclaw-local /bin/bash
+
   wipe:
     desc: Wipe the database (remove all config and data)
     silent: true

@@ -10,4 +10,4 @@ WORKDIR /app
 
 ENV OPENCLAW_GATEWAY_PORT=18789
 
-CMD ["openclaw", "gateway"]
+CMD ["openclaw", "gateway", "--host", "0.0.0.0"]
