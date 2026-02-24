@@ -4,4 +4,5 @@ podman run -it --rm \
   --ipc=host \
   -p 18789:18789 \
   -v ./db:/root/.openclaw \
+  -v ./logs:/tmp/openclaw \
   openclaw-local

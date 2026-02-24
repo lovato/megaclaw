@@ -3,11 +3,13 @@ version: '3'
 tasks:
   build:
     desc: Build the OpenClaw container image
+    silent: true
     cmds:
       - ./scripts/build.sh
 
   run:
     desc: Run the OpenClaw container
+    silent: true
     preconditions:
       - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
         msg: "Error: /db is empty. Run 'task onboard' first."
@@ -16,12 +18,14 @@ tasks:
 
   onboard:
     desc: Run onboarding for first-time setup
+    silent: true
     cmds:
-      - podman run -it -p 18789:18789 -v ./db:/root/.openclaw openclaw-local openclaw onboard
+      - podman run -it -v ./db:/root/.openclaw openclaw-local openclaw onboard
       - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   wipe:
     desc: Wipe the database (remove all config and data)
+    silent: true
     cmds:
       - rm -rf ./db/*
       - echo "Database wiped. Run 'task onboard' to reconfigure."
