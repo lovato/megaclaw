@@ -5,25 +5,27 @@ tasks:
     desc: Build the OpenClaw base container image
     silent: true
     cmds:
-      - ./scripts/build.sh
+      - ./scripts/build-base.sh
+      - echo "Base Image built! Run 'task build:runtime' to build OpenClaw runtime."
 
   build:runtime:
     desc: Build runtime image with onboarded config baked in
     silent: true
     cmds:
-      - ./scripts/build-onboard.sh
+      - ./scripts/build-runtime.sh
+      - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   run:
-    desc: Run the OpenClaw container (interactive)
+    desc: Run the OpenClaw Runtime container (interactive)
     silent: true
     preconditions:
       - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
-        msg: "Error: /db is empty. Run 'task onboard' first."
+        msg: "Error: /db is empty. Run 'task build:runtime' first."
     cmds:
       - ./scripts/run.sh
 
   start:
-    desc: Start OpenClaw in the background
+    desc: Start OpenClaw Runtime container in the background
     silent: true
     preconditions:
       - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
@@ -31,15 +33,8 @@ tasks:
     cmds:
       - ./scripts/run.sh daemon
 
-  onboard:
-    desc: Build runtime image and run onboarding
-    silent: true
-    cmds:
-      - task build:runtime
-      - echo "Onboarding complete! Run 'task run' to start OpenClaw."
-
   stop:
-    desc: Stop the running container
+    desc: Stop the Runtime container
     cmds:
       - podman stop openclaw
 
