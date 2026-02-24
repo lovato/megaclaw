@@ -9,7 +9,8 @@ tasks:
   run:
     desc: Run the OpenClaw container
     preconditions:
-      - test "$(ls -A ./db)" || (echo "Error: /db is empty. Run 'task onboard' first." && exit 1)
+      - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
+        msg: "Error: /db is empty. Run 'task onboard' first."
     cmds:
       - ./scripts/run.sh
 
