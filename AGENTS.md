@@ -12,8 +12,8 @@ This repository contains a Dockerfile for building an OpenClaw container with Pl
 
 - **Default container tool**: `podman` (not docker)
 - **Build command**: `./build.sh`
-- **Run command**: `./run.sh` or `podman run -it openclaw-local`
-- **Image name**: `openclaw-local`
+- **Run command**: `./run.sh` or `podman run -it openclaw-base`
+- **Image name**: `openclaw-base`
 
 ## Build Process
 
@@ -30,13 +30,13 @@ The Dockerfile:
 ./build.sh
 
 # Run interactively
-podman run -it openclaw-local
+podman run -it openclaw-base
 
 # Run with config persistence
-podman run -it -v ./config:/home/node/.openclaw openclaw-local
+podman run -it -v ./config:/home/node/.openclaw openclaw-base
 
 # Run gateway
-podman run -it openclaw-local openclaw gateway
+podman run -it openclaw-base openclaw gateway
 ```
 
 ## Notes

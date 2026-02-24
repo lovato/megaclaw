@@ -7,12 +7,12 @@ if [ "$MODE" = "daemon" ]; then
     --network=host \
     -v ./db:/root/.openclaw \
     -v ./logs:/tmp/openclaw \
-    openclaw-local
+    openclaw-base
 else
   podman run -it --rm \
     --name openclaw \
     --network=host \
     -v ./db:/root/.openclaw \
     -v ./logs:/tmp/openclaw \
-    openclaw-local
+    openclaw-base
 fi
