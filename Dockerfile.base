@@ -10,10 +10,12 @@ ARG CACHE_BYPASS=latest
 RUN echo "Building at $CACHE_BYPASS"
 
 # Install Homebrew
-#RUN NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-#ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
-#ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
+RUN NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
+ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
+RUN echo >> /root/.bashrc
+RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /root/.bashrc
+RUN brew install gcc
 
 # Install OpenClaw
 RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
