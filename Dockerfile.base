@@ -1,20 +1,23 @@
-FROM mcr.microsoft.com/playwright:v1.41.0-jammy
+FROM mcr.microsoft.com/playwright:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
+ARG CACHE_BYPASS=latest
 
 RUN apt-get update && \
-    apt-get install -y curl build-essential procps file
+    apt-get install -y curl build-essential procps file && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+RUN echo "Building at $CACHE_BYPASS"
 
-ARG CACHE_BYPASS=latest
-RUN echo "Installing OpenClaw at $CACHE_BYPASS"
-
-RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
-
-WORKDIR /root
+# Install Homebrew
+RUN NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
 ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
+
+# Install OpenClaw
+RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
+
+WORKDIR /root
 
 CMD ["openclaw", "gateway"]
