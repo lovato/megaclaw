@@ -5,4 +5,4 @@ ENV DEBIAN_FRONTEND=noninteractive
 ARG CACHE_BYPASS=latest
 RUN echo "Building at $CACHE_BYPASS"
 
-CMD ["openclaw", "onboard"]
+CMD ["openclaw", "gateway"]
