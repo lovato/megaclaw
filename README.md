@@ -32,6 +32,9 @@ task wipe           # Wipe all data and reset
 - **Playwright** - Browser automation (from base image)
 - **Node.js 22** - Installed automatically
 
+## What do you need?
+- **OpenRouter** API Key - https://openrouter.ai/settings/keys
+
 ## Notes
 
 - Uses `podman` (not docker)

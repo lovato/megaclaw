@@ -1,2 +1,2 @@
 #!/bin/bash
-podman build --cgroup-manager=cgroupfs --security-opt label=disable -t openclaw-local .
+podman build --build-arg CACHE_BYPASS=$(date +%s) --cgroup-manager=cgroupfs --security-opt label=disable -t openclaw-local .

@@ -29,7 +29,7 @@ tasks:
     desc: Run onboarding for first-time setup
     silent: true
     cmds:
-      - podman run -it -p 18789:18789 -v ./db:/root/.openclaw openclaw-local openclaw onboard
+      - ./scripts/onboard.sh
       - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   stop:
