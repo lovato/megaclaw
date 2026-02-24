@@ -17,6 +17,15 @@ On first run, complete onboarding:
 task onboard
 ```
 
+## Tasks
+
+```bash
+task build          # Build the container image
+task run            # Run the container (requires prior onboarding)
+task onboard        # Run onboarding wizard
+task wipe           # Wipe all data and reset
+```
+
 ## What This Provides
 
 - **OpenClaw** - Installed via official installer

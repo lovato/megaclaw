@@ -8,6 +8,8 @@ tasks:
 
   run:
     desc: Run the OpenClaw container
+    preconditions:
+      - test "$(ls -A ./db)" || (echo "Error: /db is empty. Run 'task onboard' first." && exit 1)
     cmds:
       - ./scripts/run.sh
 
@@ -15,3 +17,9 @@ tasks:
     desc: Run onboarding for first-time setup
     cmds:
       - podman run -it -v ./db:/home/node/.openclaw openclaw-local openclaw onboard
+
+  wipe:
+    desc: Wipe the database (remove all config and data)
+    cmds:
+      - rm -rf ./db/*
+      - echo "Database wiped. Run 'task onboard' to reconfigure."
