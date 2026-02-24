@@ -38,10 +38,15 @@ tasks:
     cmds:
       - podman stop openclaw
 
-  ssh:
-    desc: Jump into the container interactively (no openclaw running)
+  ssh:base:
+    desc: Jump into base container interactively
     cmds:
-      - ./scripts/ssh.sh
+      - ./scripts/ssh-base.sh
+
+  ssh:runtime:
+    desc: Jump into runtime container interactively
+    cmds:
+      - ./scripts/ssh-runtime.sh
 
   wipe:
     desc: Wipe the database (remove all config and data)

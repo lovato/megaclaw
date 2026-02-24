@@ -1,5 +1,7 @@
 # OpenClaw Docker Container
 
+Lobster in a fishtank!
+
 Self-hosted AI assistant with browser automation.
 
 ## Quick Start

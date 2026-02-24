@@ -22,4 +22,4 @@ RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 
 WORKDIR /root
 
-CMD ["openclaw", "gateway"]
+CMD ["/bin/bash"]
