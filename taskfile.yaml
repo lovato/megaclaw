@@ -8,13 +8,22 @@ tasks:
       - ./scripts/build.sh
 
   run:
-    desc: Run the OpenClaw container
+    desc: Run the OpenClaw container (interactive)
     silent: true
     preconditions:
       - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
         msg: "Error: /db is empty. Run 'task onboard' first."
     cmds:
       - ./scripts/run.sh
+
+  start:
+    desc: Start OpenClaw in the background
+    silent: true
+    preconditions:
+      - sh: test -f ./db/openclaw.json -o -f ./db/openclaw.json5
+        msg: "Error: /db is empty. Run 'task onboard' first."
+    cmds:
+      - ./scripts/run.sh daemon
 
   onboard:
     desc: Run onboarding for first-time setup
