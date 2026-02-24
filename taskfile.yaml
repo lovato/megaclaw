@@ -1,11 +1,17 @@
 version: '3'
 
 tasks:
-  build:
-    desc: Build the OpenClaw container image
+  build:base:
+    desc: Build the OpenClaw base container image
     silent: true
     cmds:
       - ./scripts/build.sh
+
+  build:onboard:
+    desc: Build runtime image with onboarded config baked in
+    silent: true
+    cmds:
+      - ./scripts/build-onboard.sh
 
   run:
     desc: Run the OpenClaw container (interactive)
@@ -26,10 +32,10 @@ tasks:
       - ./scripts/run.sh daemon
 
   onboard:
-    desc: Run onboarding for first-time setup
+    desc: Build runtime image and run onboarding
     silent: true
     cmds:
-      - ./scripts/onboard.sh
+      - task build:onboard
       - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   stop:
