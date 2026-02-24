@@ -7,7 +7,7 @@ tasks:
     cmds:
       - ./scripts/build.sh
 
-  build:onboard:
+  build:runtime:
     desc: Build runtime image with onboarded config baked in
     silent: true
     cmds:
@@ -35,7 +35,7 @@ tasks:
     desc: Build runtime image and run onboarding
     silent: true
     cmds:
-      - task build:onboard
+      - task build:runtime
       - echo "Onboarding complete! Run 'task run' to start OpenClaw."
 
   stop:
