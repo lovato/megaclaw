@@ -33,7 +33,11 @@ task wipe           # Wipe all data and reset
 - **Node.js 22** - Installed automatically
 
 ## What do you need?
+
+### For a quick start:
+
 - **OpenRouter** API Key - https://openrouter.ai/settings/keys
+- **A Model** Get a Free one, from this list: https://openrouter.ai/models?max_price=0&order=most-popular
 
 ## Notes
 
