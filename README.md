@@ -5,15 +5,15 @@ Self-hosted AI assistant with browser automation.
 ## Quick Start
 
 ```bash
-task build:base        # Build the base container image
-task build:runtime     # Build runtime with onboarding baked in
+task build:base       # Build the base container image
+task build:runtime    # Build runtime with onboarding baked in
 task run              # Run the container (interactive)
 ```
 
 ## Tasks
 
 ```bash
-task build:base        # Build base image (OpenClaw + Homebrew)
+task build:base       # Build base image (OpenClaw + Homebrew)
 task build:runtime    # Build runtime image + run onboard
 task run              # Run OpenClaw (interactive)
 task start            # Run OpenClaw in background
