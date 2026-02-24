@@ -1,5 +1,5 @@
 #!/bin/bash
-podman run -it --rm \
+podman run -d --rm \
   --name openclaw \
   --ipc=host \
   -p 18789:18789 \
