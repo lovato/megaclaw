@@ -1,6 +1,6 @@
-# OpenClaw Docker Container
+# OpenClaw Fishtank
 
-Self-hosted AI assistant with browser automation.
+Self-hosted AI assistant with browser automation, trapped in a container.
 
 ## Quick Start
 
