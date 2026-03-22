@@ -2,6 +2,22 @@
 
 Self-hosted AI assistant with browser automation, trapped in a container.
 
+## Project Dependencies
+
+To install this project on Linux you will need, as root:
+
+```bash
+apt update
+# Podman
+apt install -y podman
+# Go-Task
+curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
+apt install -y task
+```
+
+And you should good to go.
+On a regular computer all build process is fast. If you are doing this on RaspberryPI, it will take a (loooong) while to build, but it will get there.
+
 ## Quick Start
 
 ```bash
