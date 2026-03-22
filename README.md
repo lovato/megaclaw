@@ -6,15 +6,23 @@ Recently I learned about https://github.com/lightpanda-io/browser too.
 
 ## Project Dependencies
 
-To install this project on Linux you will need, as root:
+To install this project on Linux you will need:
+
+But wait! If you are using a RaspberryPI...
+```bash
+# On Raspberry Pi or other rootless Podman environments, enable user lingering first:
+sudo loginctl enable-linger $USER
+```
+
+From here, now should work on any linux:
 
 ```bash
-apt update
+sudo apt update
 # Podman
-apt install -y podman
+sudo apt install -y podman
 # Go-Task
 curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
-apt install -y task
+sudo apt install -y task
 ```
 
 And you should good to go.
