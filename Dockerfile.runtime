@@ -1,4 +1,5 @@
-FROM openclaw-base:latest
+ARG REGISTRY
+FROM ghcr.io/${REGISTRY}/openclaw-base:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
