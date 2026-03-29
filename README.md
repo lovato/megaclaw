@@ -31,9 +31,17 @@ sudo apt install -y task
 
 ## Quick Start
 
+**On a regular machine (or if you want to build from source):**
 ```bash
-task build:base       # Build base image (OpenClaw + Playwright + Homebrew)
-task build:runtime    # Build runtime image (runs onboarding interactively)
+task build:base       # Build base image locally
+task build:runtime    # Run onboarding and bake config into runtime image
+task run              # Start OpenClaw
+```
+
+**On a Raspberry Pi (or any slow machine):**
+```bash
+task pull:base        # Pull pre-built base image from GHCR — no compile needed
+task build:runtime    # Run onboarding and bake config into runtime image
 task run              # Start OpenClaw
 ```
 
@@ -44,8 +52,9 @@ You'll need:
 ## All Tasks
 
 ```bash
-task build:base       # Build base image
-task build:runtime    # Build runtime image + run onboard
+task build:base       # Build base image locally
+task pull:base        # Pull pre-built base image from GHCR
+task build:runtime    # Run onboarding and bake config into runtime image
 task run              # Run OpenClaw (interactive)
 task start            # Run OpenClaw in background
 task stop             # Stop the running container

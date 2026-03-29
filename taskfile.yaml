@@ -2,14 +2,21 @@ version: '3'
 
 tasks:
   build:base:
-    desc: Build the OpenClaw base container image
+    desc: Build the base image locally (slow — prefer pull:base on Pi)
     silent: true
     cmds:
       - ./scripts/build-base.sh
-      - echo "Base Image built! Run 'task build:runtime' to build OpenClaw runtime."
+      - echo "Base image built! Run 'task build:runtime' to onboard."
+
+  pull:base:
+    desc: Pull the pre-built base image from GHCR (faster than building locally)
+    cmds:
+      - podman pull ghcr.io/lovato/openclaw-base:latest
+      - podman tag ghcr.io/lovato/openclaw-base:latest openclaw-base:latest
+      - echo "Base image ready. Run 'task build:runtime' to onboard."
 
   build:runtime:
-    desc: Build runtime image with onboarded config baked in
+    desc: Run interactive onboarding and bake config into the runtime image
     silent: true
     cmds:
       - ./scripts/build-runtime.sh
