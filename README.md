@@ -81,3 +81,4 @@ Run `task --list` to see all available tasks.
 - `./db` is mounted to `/root/.openclaw` for config persistence
 - `./logs` is mounted for OpenClaw logs
 - Browser automation is bundled but not fully tested yet
+- **Never push `openclaw-runtime` to any registry** — it contains your onboarding config and API keys baked into the image

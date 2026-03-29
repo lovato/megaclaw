@@ -16,7 +16,7 @@ tasks:
       - echo "Base image ready. Run 'task build:runtime' to onboard."
 
   build:runtime:
-    desc: Run interactive onboarding and bake config into the runtime image
+    desc: Run interactive onboarding and bake config into the runtime image (local only — never push)
     silent: true
     cmds:
       - ./scripts/build-runtime.sh
