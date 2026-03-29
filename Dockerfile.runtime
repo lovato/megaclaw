@@ -2,7 +2,7 @@ FROM openclaw-base:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG CACHE_BYPASS=latest
-RUN echo "Building at $CACHE_BYPASS"
+# Onboarding config is baked into this image via build-runtime.sh (podman commit)
+# Run: task build:runtime  to build and onboard interactively
 
-CMD ["/bin/bash"]
+CMD ["openclaw", "gateway"]

@@ -1,4 +1,6 @@
 #!/bin/bash
+set -e
+
 MODE="${1:-interactive}"
 
 if [ "$MODE" = "daemon" ]; then

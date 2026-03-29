@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright:latest
+FROM mcr.microsoft.com/playwright:v1.41.0-jammy
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -6,18 +6,19 @@ RUN apt-get update && \
     apt-get install -y curl build-essential procps file && \
     rm -rf /var/lib/apt/lists/*
 
-ARG CACHE_BYPASS=latest
-RUN echo "Building at $CACHE_BYPASS"
+# CACHE_BYPASS forces a fresh OpenClaw install on every build (pass date +%s at build time)
+ARG CACHE_BYPASS=none
+RUN echo "Cache bypass: $CACHE_BYPASS"
 
-# Install Homebrew
+# Install Homebrew (required by the OpenClaw installer)
 RUN NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
-RUN echo >> /root/.bashrc
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /root/.bashrc
 RUN brew install gcc
 
-# Install OpenClaw
+# Install OpenClaw without running interactive onboarding
+# Onboarding is handled separately in build-runtime.sh
 RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 
 WORKDIR /root
