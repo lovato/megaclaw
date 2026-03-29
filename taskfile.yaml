@@ -48,6 +48,11 @@ tasks:
     cmds:
       - ./scripts/ssh-runtime.sh
 
+  test:
+    desc: Run smoke tests (syntax check scripts, validate taskfile and Dockerfiles)
+    cmds:
+      - ./scripts/test-smoke.sh
+
   wipe:
     desc: Wipe the database (remove all config and data)
     silent: true

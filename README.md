@@ -52,6 +52,7 @@ task stop             # Stop the running container
 task ssh:base         # Shell into base image
 task ssh:runtime      # Shell into runtime image
 task wipe             # Wipe all data and reset
+task test             # Run smoke tests (syntax + structure checks)
 ```
 
 Run `task --list` to see all available tasks.
