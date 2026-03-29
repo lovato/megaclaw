@@ -1,6 +1,16 @@
 # MegaClaw
 
-Self-hosted AI assistant containerized with Podman and browser automation via Playwright.
+OpenClaw in a container that actually works — with Playwright browsers pre-installed and onboarding baked in.
+
+## Why not just use the official Podman setup?
+
+The [official OpenClaw Podman setup](https://docs.openclaw.ai/install/podman) has three problems this project solves:
+
+1. **No browsers.** The official base image (`node:24-bookworm`) ships no browsers. Playwright requires a manual post-install step, and the `OPENCLAW_DOCKER_APT_PACKAGES` workaround is [broken in the Podman path](https://github.com/openclaw/openclaw/issues/35397). Here, the base image is `mcr.microsoft.com/playwright:latest` — Chromium is already there.
+
+2. **Permission errors.** Rootless Podman remaps UIDs, which causes `EACCES: permission denied` on `~/.openclaw/openclaw.json` ([Issue #27336](https://github.com/openclaw/openclaw/issues/27336)) when bind-mounting the config directory. Here, the onboarded config is committed into the image — no bind-mount, no permission issue.
+
+3. **Onboarding is skipped officially.** The official setup seeds a minimal JSON and bypasses the interactive wizard. Here, `task build:runtime` runs the full onboarding interactively and bakes the result into the runtime image.
 
 ## Prerequisites
 
