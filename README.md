@@ -1,45 +1,40 @@
-# MegaClaw - Lobster in a Fishtank
+# MegaClaw
 
-Self-hosted AI assistant with browser automation, trapped in a container.
-To be honest, the browser part wasn't even tested yet. But that is the reason for Playwright to be here.
-Recently I learned about https://github.com/lightpanda-io/browser too.
+Self-hosted AI assistant containerized with Podman and browser automation via Playwright.
 
-## Project Dependencies
+## Prerequisites
 
-To install this project on Linux you will need:
-
-But wait! If you are using a RaspberryPI...
+**Raspberry Pi only** — enable user lingering first:
 ```bash
-# On Raspberry Pi or other rootless Podman environments, enable user lingering first:
 sudo loginctl enable-linger $USER
 ```
 
-From here, now should work on any linux:
-
+**All Linux systems:**
 ```bash
 sudo apt update
-# Podman
 sudo apt install -y podman
-# Go-Task
 curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
 sudo apt install -y task
 ```
 
-And you should good to go.
-On a regular computer all build process is fast. If you are doing this on RaspberryPI, it will take a (loooong) while to build, but it will get there.
+> Building on Raspberry Pi works but takes significantly longer than on standard hardware.
 
 ## Quick Start
 
 ```bash
-task build:base       # Build the base container image
-task build:runtime    # Build runtime with onboarding baked in
-task run              # Run the container (interactive)
+task build:base       # Build base image (OpenClaw + Playwright + Homebrew)
+task build:runtime    # Build runtime image (runs onboarding interactively)
+task run              # Start OpenClaw
 ```
 
-## Tasks
+You'll need:
+- **OpenRouter API key** — https://openrouter.ai/settings/keys
+- **A model** — free options available at https://openrouter.ai/models?max_price=0&order=most-popular
+
+## All Tasks
 
 ```bash
-task build:base       # Build base image (OpenClaw + Homebrew)
+task build:base       # Build base image
 task build:runtime    # Build runtime image + run onboard
 task run              # Run OpenClaw (interactive)
 task start            # Run OpenClaw in background
@@ -49,29 +44,20 @@ task ssh:runtime      # Shell into runtime image
 task wipe             # Wipe all data and reset
 ```
 
-## First Run
+Run `task --list` to see all available tasks.
 
-1. Build base: `task build:base`
-2. Build runtime (runs onboard): `task build:runtime`
-3. Run: `task run` or `task start`
+## What's Included
 
-## What This Provides
-
-- **OpenClaw** - Installed via official installer
-- **Playwright** - Browser automation (from base image)
-- **Homebrew** - Installed in base image
-- **Node.js 22** - Installed automatically
-
-## What do you need?
-
-### For a quick start:
-
-- **OpenRouter** API Key - https://openrouter.ai/settings/keys
-- **A Model** Get a Free one, from this list: https://openrouter.ai/models?max_price=0&order=most-popular
+| Component | Details |
+|-----------|---------|
+| OpenClaw | Installed via official installer |
+| Playwright | Browser automation (pre-installed in base image) |
+| Homebrew | Available in base image |
+| Node.js 22 | Installed automatically |
 
 ## Notes
 
-- Uses `podman` (not docker)
-- `./db` is mounted for config persistence at `/root/.openclaw`
+- Uses `podman`, not Docker
+- `./db` is mounted to `/root/.openclaw` for config persistence
 - `./logs` is mounted for OpenClaw logs
-- Run `task --list` to see all available tasks
+- Browser automation is bundled but not fully tested yet
