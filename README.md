@@ -1,4 +1,4 @@
-# OpenClaw Fishtank
+# MegaClaw - Lobster in a Fishtank
 
 Self-hosted AI assistant with browser automation, trapped in a container.
 To be honest, the browser part wasn't even tested yet. But that is the reason for Playwright to be here.
