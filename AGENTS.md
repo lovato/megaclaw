@@ -42,9 +42,9 @@ task start            # Run OpenClaw gateway (background)
 task stop             # Stop the running container
 task ssh:base         # Shell into megaclaw-base
 task ssh:runtime      # Shell into megaclaw-runtime
-task backup:create    # Zip db/ into megaclaw-db.zip (optional password)
-task backup:restore   # Restore db/ from megaclaw-db.zip
-task wipe             # Wipe db/ and reset config
+task db:backup        # Zip db/ into megaclaw-db.zip (optional password)
+task db:restore       # Restore db/ from megaclaw-db.zip
+task db:wipe          # Wipe db/ and reset config
 task test             # Smoke tests (bash syntax, yaml, Dockerfiles)
 ```
 
