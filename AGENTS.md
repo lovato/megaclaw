@@ -23,6 +23,7 @@ MegaClaw packages OpenClaw into a Podman-friendly container with Playwright brow
   - Copies `/home/linuxbrew` from stage 1 into stage 2 (avoids running the Homebrew install script in CI)
   - Installs OpenClaw via `curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard`
 - Published automatically to `ghcr.io/lovato/megaclaw-base` via GitHub Actions on push to `main`
+- Built for both `linux/amd64` and `linux/arm64` — `podman pull` automatically picks the right variant for the current machine (x86 on WSL, arm64 on Raspberry Pi)
 
 ### megaclaw-runtime
 - Built from `Dockerfile.runtime` (`FROM megaclaw-base:latest`)

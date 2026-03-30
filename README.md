@@ -79,7 +79,7 @@ Run `task --list` to see all available tasks.
 
 Homebrew is copied from stage 1 into stage 2 rather than installed from scratch. This is intentional — OpenClaw uses Homebrew at runtime to install packages on demand, and the Homebrew install script is unreliable in Docker/CI environments.
 
-`megaclaw-base` is built automatically by GitHub Actions and published to `ghcr.io/lovato/megaclaw-base`.
+`megaclaw-base` is built automatically by GitHub Actions and published to `ghcr.io/lovato/megaclaw-base` as a multi-platform image (`linux/amd64` + `linux/arm64`). `podman pull` automatically picks the right variant — no flags needed, works transparently on both WSL and Raspberry Pi.
 
 `megaclaw-runtime` is built locally only — it runs `openclaw onboard` interactively and commits the result into the image via `podman commit`. It is never pushed to any registry since it contains your API keys and config.
 
