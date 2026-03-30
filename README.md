@@ -60,6 +60,8 @@ task start            # Run OpenClaw in background
 task stop             # Stop the running container
 task ssh:base         # Shell into base image
 task ssh:runtime      # Shell into runtime image
+task backup:create    # Zip db/ into megaclaw-db.zip (optional password)
+task backup:restore   # Restore db/ from megaclaw-db.zip
 task wipe             # Wipe all data and reset
 task test             # Run smoke tests (syntax + structure checks)
 ```
