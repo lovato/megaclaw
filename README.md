@@ -6,7 +6,7 @@ OpenClaw in a container that actually works — with Playwright browsers pre-ins
 
 The [official OpenClaw Podman setup](https://docs.openclaw.ai/install/podman) has three problems this project solves:
 
-1. **No browsers.** The official base image (`node:24-bookworm`) ships no browsers. Playwright requires a manual post-install step, and the `OPENCLAW_DOCKER_APT_PACKAGES` workaround is [broken in the Podman path](https://github.com/openclaw/openclaw/issues/35397). Here, the base image is `mcr.microsoft.com/playwright:latest` — Chromium is already there.
+1. **No browsers.** The official base image (`node:24-bookworm`) ships no browsers. Playwright requires a manual post-install step, and the `OPENCLAW_DOCKER_APT_PACKAGES` workaround is [broken in the Podman path](https://github.com/openclaw/openclaw/issues/35397). Here, the base is `mcr.microsoft.com/playwright:v1.41.0-jammy` — Chromium is already there.
 
 2. **Permission errors.** Rootless Podman remaps UIDs, which causes `EACCES: permission denied` on `~/.openclaw/openclaw.json` ([Issue #27336](https://github.com/openclaw/openclaw/issues/27336)) when bind-mounting the config directory. Here, the onboarded config is committed into the image — no bind-mount, no permission issue.
 
@@ -68,14 +68,20 @@ task test             # Run smoke tests (syntax + structure checks)
 
 Run `task --list` to see all available tasks.
 
-## What's Included
+## How the images are built
 
-| Component | Details |
-|-----------|---------|
-| OpenClaw | Installed via official installer |
-| Playwright | Browser automation (pre-installed in base image) |
-| Homebrew | Available in base image |
-| Node.js 22 | Installed automatically |
+`megaclaw-base` uses a multi-stage build:
+
+| Stage | From | Purpose |
+|-------|------|---------|
+| 1 | `homebrew/brew:latest` | Provides a pre-built Homebrew installation |
+| 2 | `mcr.microsoft.com/playwright:v1.41.0-jammy` | Base with Chromium and browser deps |
+
+Homebrew is copied from stage 1 into stage 2 rather than installed from scratch. This is intentional — OpenClaw uses Homebrew at runtime to install packages on demand, and the Homebrew install script is unreliable in Docker/CI environments.
+
+`megaclaw-base` is built automatically by GitHub Actions and published to `ghcr.io/lovato/megaclaw-base`.
+
+`megaclaw-runtime` is built locally only — it runs `openclaw onboard` interactively and commits the result into the image via `podman commit`. It is never pushed to any registry since it contains your API keys and config.
 
 ## Notes
 
