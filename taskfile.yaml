@@ -11,8 +11,8 @@ tasks:
   pull:base:
     desc: Pull the pre-built base image from GHCR (faster than building locally)
     cmds:
-      - podman pull ghcr.io/lovato/openclaw-base:latest
-      - podman tag ghcr.io/lovato/openclaw-base:latest openclaw-base:latest
+      - podman pull ghcr.io/lovato/megaclaw-base:latest
+      - podman tag ghcr.io/lovato/megaclaw-base:latest megaclaw-base:latest
       - echo "Base image ready. Run 'task build:runtime' to onboard."
 
   build:runtime:
@@ -26,7 +26,7 @@ tasks:
     desc: Run the OpenClaw Runtime container (interactive)
     silent: true
     preconditions:
-      - sh: podman image exists openclaw-runtime
+      - sh: podman image exists megaclaw-runtime
         msg: "Error: Runtime image not found. Run 'task build:runtime' first."
     cmds:
       - ./scripts/run.sh
@@ -35,7 +35,7 @@ tasks:
     desc: Start OpenClaw Runtime container in the background
     silent: true
     preconditions:
-      - sh: podman image exists openclaw-runtime
+      - sh: podman image exists megaclaw-runtime
         msg: "Error: Runtime image not found. Run 'task build:runtime' first."
     cmds:
       - ./scripts/run.sh daemon

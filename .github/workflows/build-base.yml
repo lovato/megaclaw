@@ -1,4 +1,4 @@
-name: Build and push openclaw-base
+name: Build and push megaclaw-base
 
 on:
   push:
@@ -12,7 +12,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository_owner }}/openclaw-base
+  IMAGE_NAME: ${{ github.repository_owner }}/megaclaw-base
 
 jobs:
   build-and-push:

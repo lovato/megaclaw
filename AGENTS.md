@@ -12,15 +12,15 @@ This repository contains Dockerfiles for building OpenClaw containers with Playw
 
 - **Default container tool**: `podman` (not docker)
 - **Tasks**: Use `task --list` to see available commands
-- **Images**: `openclaw-base` (with Homebrew), `openclaw-runtime` (onboarded)
+- **Images**: `megaclaw-base` (with Homebrew), `megaclaw-runtime` (onboarded)
 
 ## Images
 
-### openclaw-base
+### megaclaw-base
 - Base image with OpenClaw, Homebrew, Playwright browsers
 - Built from `Dockerfile.base`
 
-### openclaw-runtime
+### megaclaw-runtime
 - Runtime image with onboarded config baked in
 - Built from `Dockerfile.runtime`
 - Ready to run `openclaw gateway`
