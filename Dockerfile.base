@@ -3,17 +3,20 @@ FROM mcr.microsoft.com/playwright:v1.41.0-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y curl git build-essential procps file && \
+    apt-get install -y curl git ruby build-essential procps file && \
     rm -rf /var/lib/apt/lists/*
 
 # CACHE_BYPASS forces a fresh OpenClaw install on every build (pass date +%s at build time)
 ARG CACHE_BYPASS=none
 RUN echo "Cache bypass: $CACHE_BYPASS"
 
-# Install Homebrew (required by the OpenClaw installer)
-RUN CI=1 NONINTERACTIVE=1 bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+# Install Homebrew by cloning directly — avoids the install script's CI/root checks
 ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
+RUN git clone --depth=1 https://github.com/Homebrew/brew "${HOMEBREW_PREFIX}/Homebrew" && \
+    mkdir -p "${HOMEBREW_PREFIX}/bin" && \
+    ln -s "${HOMEBREW_PREFIX}/Homebrew/bin/brew" "${HOMEBREW_PREFIX}/bin/brew" && \
+    brew update --force --quiet
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /root/.bashrc
 RUN brew install gcc
 
