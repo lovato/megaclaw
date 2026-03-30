@@ -90,3 +90,26 @@ Homebrew is copied from stage 1 into stage 2 rather than installed from scratch.
 - `./logs` is mounted for OpenClaw logs
 - Browser automation is bundled but not fully tested yet
 - **Never push `megaclaw-runtime` to any registry** — it contains your onboarding config and API keys baked into the image
+
+## Accessing the Control UI from another machine
+
+By default OpenClaw only listens on loopback (`127.0.0.1`), so the web interface is only reachable from the machine running the container. To access it from another device on the network, edit `./db/openclaw.json`:
+
+```json
+{
+  "gateway": {
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": ["http://192.168.1.100:18789"]
+    }
+  }
+}
+```
+
+**`gateway.bind`** — change from `"loopback"` to `"lan"` to listen on all network interfaces.
+
+**`gateway.controlUi.allowedOrigins`** — set to the origin of the **host running megaclaw** (protocol + IP + port), not the browser's IP. The browser sends this value as the `Origin` header when the Control UI makes API requests, and OpenClaw validates it against this list. For example, if the Pi running megaclaw is at `192.168.1.100`, use `["http://192.168.1.100:18789"]`.
+
+> **Risks:** `bind: lan` exposes the gateway to everyone on your local network. The gateway token provides some protection, but do not do this on untrusted networks, and never port-forward this port to the internet.
+
+> **Do not use `["*"]` in production.** It allows any browser origin to talk to your gateway. It is only acceptable for tightly controlled local testing where you understand the implications.
