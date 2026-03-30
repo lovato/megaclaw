@@ -13,10 +13,13 @@ RUN echo "Cache bypass: $CACHE_BYPASS"
 # Install Homebrew by cloning directly — avoids the install script's CI/root checks
 ENV HOMEBREW_PREFIX=/home/linuxbrew/.linuxbrew
 ENV PATH=$HOMEBREW_PREFIX/bin:$HOMEBREW_PREFIX/sbin:$PATH
-RUN git clone --depth=1 https://github.com/Homebrew/brew "${HOMEBREW_PREFIX}/Homebrew" && \
-    mkdir -p "${HOMEBREW_PREFIX}/bin" && \
-    ln -s "${HOMEBREW_PREFIX}/Homebrew/bin/brew" "${HOMEBREW_PREFIX}/bin/brew" && \
-    brew update --force --quiet
+ENV HOMEBREW_NO_AUTO_UPDATE=1
+ENV HOMEBREW_NO_ANALYTICS=1
+ENV HOMEBREW_NO_INSTALL_CLEANUP=1
+
+RUN git clone --depth=1 https://github.com/Homebrew/brew "${HOMEBREW_PREFIX}/Homebrew"
+RUN mkdir -p "${HOMEBREW_PREFIX}/bin" && \
+    ln -s "${HOMEBREW_PREFIX}/Homebrew/bin/brew" "${HOMEBREW_PREFIX}/bin/brew"
 RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /root/.bashrc
 RUN brew install gcc
 
