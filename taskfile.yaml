@@ -60,17 +60,17 @@ tasks:
     cmds:
       - ./scripts/test-smoke.sh
 
-  backup:create:
+  db:backup:
     desc: Zip db/ into megaclaw-db.zip (prompts for optional password)
     cmds:
       - ./scripts/backup-create.sh
 
-  backup:restore:
+  db:restore:
     desc: Restore db/ from megaclaw-db.zip (db must be clean first)
     cmds:
       - ./scripts/backup-restore.sh
 
-  wipe:
+  db:wipe:
     desc: Wipe the database (remove all config and data)
     silent: true
     cmds:
