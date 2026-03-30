@@ -14,20 +14,31 @@ The [official OpenClaw Podman setup](https://docs.openclaw.ai/install/podman) ha
 
 ## Prerequisites
 
-**Raspberry Pi only** — enable user lingering first:
-```bash
-sudo loginctl enable-linger $USER
-```
+The following tools are required to use this repo. None of them are standard Linux installs, so check each one.
 
-**All Linux systems:**
+| Tool | What it does | Install |
+|------|-------------|---------|
+| **Podman** | Runs the containers (Docker alternative, rootless-friendly) | [podman.io/docs/installation](https://podman.io/docs/installation) |
+| **Task** | Task runner — replaces Makefile (`task build:base`, etc.) | [taskfile.dev/installation](https://taskfile.dev/installation/) |
+| **Git** | Clone the repo and manage branches | [git-scm.com/downloads](https://git-scm.com/downloads) |
+
+**Quick install on Debian/Ubuntu/Raspberry Pi OS:**
+
 ```bash
-sudo apt update
-sudo apt install -y podman
+sudo apt update && sudo apt install -y podman git
+
+# Task (go-task) — not in standard apt repos, use the official installer
 curl -1sLf 'https://dl.cloudsmith.io/public/task/task/setup.deb.sh' | sudo -E bash
 sudo apt install -y task
 ```
 
-> Building on Raspberry Pi works but takes significantly longer than on standard hardware.
+**Raspberry Pi only** — enable user lingering so containers survive logout:
+```bash
+sudo loginctl enable-linger $USER
+```
+
+> Building the base image locally on Raspberry Pi works but takes significantly longer than on standard hardware. Use `task pull:base` instead.
+
 
 ## Quick Start
 
