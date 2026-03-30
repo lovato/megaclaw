@@ -146,4 +146,25 @@ After all of the above, the Control UI will ask for pairing. Send a message to y
 
 ---
 
+## Stuck Sessions
+
+If an agent gets stuck in a loop (e.g., repeatedly calling the same tool), it can cause issues across restarts. You'll notice the session keeps running even after killing and relaunching OpenClaw.
+
+**List all sessions:**
+```bash
+task ssh:runtime
+openclaw sessions list
+```
+
+**Abort a stuck session:**
+```bash
+task ssh:runtime
+openclaw sessions abort <session-id>
+```
+
+**Quick fix without SSH:**
+Edit `db/agents/main/sessions/sessions.json` and change `"status": "running"` to `"status": "done"` for the affected session key. Then restart OpenClaw.
+
+---
+
 All four steps need to work together. If any one of them is missing you'll get a different error. For personal use, the localhost path is strongly recommended.
