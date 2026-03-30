@@ -41,9 +41,15 @@ tasks:
       - ./scripts/run.sh daemon
 
   stop:
-    desc: Stop the Runtime container
+    desc: Stop and remove the megaclaw container
     cmds:
-      - podman stop openclaw
+      - podman stop megaclaw 2>/dev/null || true
+      - podman rm -f megaclaw 2>/dev/null || true
+
+  purge:
+    desc: Force-remove the megaclaw container (use after ctrl-c or crash)
+    cmds:
+      - podman rm -f megaclaw 2>/dev/null || true
 
   ssh:base:
     desc: Jump into base container interactively
