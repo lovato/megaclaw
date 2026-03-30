@@ -91,25 +91,59 @@ Homebrew is copied from stage 1 into stage 2 rather than installed from scratch.
 - Browser automation is bundled but not fully tested yet
 - **Never push `megaclaw-runtime` to any registry** — it contains your onboarding config and API keys baked into the image
 
-## Accessing the Control UI from another machine
+## Accessing the Control UI
 
-By default OpenClaw only listens on loopback (`127.0.0.1`), so the web interface is only reachable from the machine running the container. To access it from another device on the network, edit `./db/openclaw.json`:
+### Finding your URLs
 
-```json
-{
-  "gateway": {
-    "bind": "lan",
-    "controlUi": {
-      "allowedOrigins": ["http://192.168.1.100:18789"]
-    }
-  }
-}
+If you're not sure where the dashboard is, shell into the running container and ask OpenClaw directly:
+
+```bash
+task ssh:runtime
+openclaw dashboard
 ```
 
-**`gateway.bind`** — change from `"loopback"` to `"lan"` to listen on all network interfaces.
+It will print the Control UI URL and gateway address.
 
-**`gateway.controlUi.allowedOrigins`** — set to the origin of the **host running megaclaw** (protocol + IP + port), not the browser's IP. The browser sends this value as the `Origin` header when the Control UI makes API requests, and OpenClaw validates it against this list. For example, if the Pi running megaclaw is at `192.168.1.100`, use `["http://192.168.1.100:18789"]`.
+### The simple path: localhost
 
-> **Risks:** `bind: lan` exposes the gateway to everyone on your local network. The gateway token provides some protection, but do not do this on untrusted networks, and never port-forward this port to the internet.
+The easiest setup is to open the Control UI from a browser **on the same machine running megaclaw**. No config changes needed — OpenClaw binds to `127.0.0.1` by default and browsers treat `localhost` as a secure context, so all features work out of the box.
 
-> **Do not use `["*"]` in production.** It allows any browser origin to talk to your gateway. It is only acceptable for tightly controlled local testing where you understand the implications.
+### Remote access (non-localhost): it gets complicated
+
+Accessing the Control UI from a different machine on the network requires several things to align, and it's easy to get stuck:
+
+**1. Make the gateway listen on the network**
+
+Edit `./db/openclaw.json` and change `gateway.bind` from `"loopback"` to `"lan"`:
+
+```json
+{ "gateway": { "bind": "lan" } }
+```
+
+> This exposes the gateway to your local network. Do not do this on untrusted networks and never port-forward this port to the internet.
+
+**2. Allow your browser's origin**
+
+Add `gateway.controlUi.allowedOrigins` set to the full origin of the host running megaclaw (protocol + IP + port). The origin is the **server's** address, not your browser's:
+
+```json
+{ "gateway": { "controlUi": { "allowedOrigins": ["http://192.168.1.100:18789"] } } }
+```
+
+**3. Deal with the secure context requirement**
+
+Browsers only allow certain APIs (required by the Control UI) on `https://` or `localhost`. Since you're on plain `http://`, you need to explicitly flag the origin as trusted in Chrome:
+
+```
+chrome://flags/#unsafely-treat-insecure-origin-as-secure
+```
+
+Add your gateway URL (`http://192.168.1.100:18789`), enable the flag, relaunch Chrome.
+
+**4. Pair your browser**
+
+After all of the above, the Control UI will ask for pairing. Send a message to your OpenClaw bot (WhatsApp or Telegram) to get a pairing code, then enter it in the browser.
+
+---
+
+All four steps need to work together. If any one of them is missing you'll get a different error. For personal use, the localhost path is strongly recommended.
