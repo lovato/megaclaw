@@ -7,7 +7,7 @@ FROM mcr.microsoft.com/playwright:v1.41.0-jammy
 ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update && \
-    apt-get install -y curl git build-essential procps file && \
+    apt-get install -y curl git vim build-essential procps file && \
     rm -rf /var/lib/apt/lists/*
 
 # CACHE_BYPASS forces a fresh OpenClaw install on every build (pass date +%s at build time)
