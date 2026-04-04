@@ -21,8 +21,7 @@ if skills:
     for slug in skills:
         print(f"  {slug}")
         subprocess.run(
-            ["clawhub", "--workdir", "/root/.openclaw/workspace",
-             "update", slug, "--no-input"],
+            ["clawhub", "update", slug, "--no-input"],
             check=False
         )
 EOF

@@ -5,7 +5,6 @@ set -e
 # Reads /etc/megaclaw/deps.json and installs all skill definitions + npm dependencies.
 
 DEPS_FILE="/etc/megaclaw/deps.json"
-WORKDIR="/root/.openclaw/workspace"
 
 if [ ! -f "$DEPS_FILE" ]; then
   echo "No deps.json found at $DEPS_FILE, skipping."
@@ -44,8 +43,7 @@ else:
     print("==> Installing skills...")
     for slug, skill in skills.items():
         print(f"  clawhub install {slug}")
-        run(["clawhub", "--workdir", "/root/.openclaw/workspace",
-             "install", slug, "--no-input"])
+        run(["clawhub", "install", slug, "--no-input"])
 
         for pkg in skill.get("npm", []):
             print(f"  npm install -g {pkg}")

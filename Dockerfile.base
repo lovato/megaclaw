@@ -28,6 +28,9 @@ RUN echo 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv bash)"' >> /root/
 # Onboarding is handled separately in build-runtime.sh
 RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 
+# Install ClaWHub CLI — core skill manager, guaranteed present regardless of onboarding choices
+RUN npm install -g clawhub@latest
+
 WORKDIR /root
 
 CMD ["/bin/bash"]

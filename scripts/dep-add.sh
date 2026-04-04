@@ -32,7 +32,7 @@ podman run --rm \
   --network=host \
   -v "./db:/root/.openclaw" \
   megaclaw-runtime \
-  clawhub --workdir /root/.openclaw/workspace install "$SLUG" --no-input
+  clawhub install "$SLUG" --no-input
 
 # Read SKILL.md on the host to discover npm dependencies
 SKILL_MD="./db/workspace/skills/${SKILL_NAME}/SKILL.md"
