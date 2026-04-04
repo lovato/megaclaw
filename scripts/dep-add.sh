@@ -56,12 +56,19 @@ import json, os, sys
 slug = sys.argv[1]
 packages = [f"{p}@latest" for p in sys.argv[2:]]
 
-path = "deps.json"
+path = "db/deps.json"
 if os.path.exists(path):
     with open(path) as f:
         deps = json.load(f)
 else:
-    deps = {"version": 1, "core": {"npm": []}, "skills": {}}
+    # Seed from default template if available
+    import shutil
+    if os.path.exists("deps.default.json"):
+        shutil.copy("deps.default.json", path)
+        with open(path) as f:
+            deps = json.load(f)
+    else:
+        deps = {"version": 1, "core": {"npm": []}, "skills": {}}
 
 deps["skills"][slug] = {"npm": packages}
 

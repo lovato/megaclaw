@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Bake the deps manifest and lifecycle scripts into the image
 RUN mkdir -p /etc/megaclaw
-COPY deps.json /etc/megaclaw/deps.json
+COPY db/deps.json /etc/megaclaw/deps.json
 COPY scripts/install-deps.sh /usr/local/bin/install-deps
 COPY scripts/entrypoint.sh /entrypoint.sh
 RUN chmod +x /usr/local/bin/install-deps /entrypoint.sh

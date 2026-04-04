@@ -8,7 +8,13 @@ if ! podman image exists megaclaw-base:latest; then
   podman tag ghcr.io/lovato/megaclaw-base:latest megaclaw-base:latest
 fi
 
-# Build the runtime image (bakes deps.json + scripts in via Dockerfile.runtime)
+# Seed personal deps.json from default template if not present
+if [ ! -f "./db/deps.json" ]; then
+  echo "==> No db/deps.json found, seeding from deps.default.json..."
+  cp deps.default.json ./db/deps.json
+fi
+
+# Build the runtime image (bakes db/deps.json + scripts in via Dockerfile.runtime)
 podman build \
   --build-arg CACHE_BYPASS="$(date +%s)" \
   --cgroup-manager=cgroupfs \
