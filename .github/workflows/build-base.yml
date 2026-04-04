@@ -8,6 +8,7 @@ on:
       - Dockerfile.base
       - scripts/build-base.sh
       - .github/workflows/build-base.yml
+      - version.json
   schedule:
     - cron: '0 3 * * 1'  # Every Monday at 03:00 UTC
   workflow_dispatch:
@@ -15,7 +16,6 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository_owner }}/megaclaw-base
-  VERSION_PREFIX: "1.0"
 
 jobs:
   build-and-push:
@@ -30,11 +30,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Read version
+        id: version
+        run: |
+          major=$(jq -r '.major' version.json)
+          minor=$(jq -r '.minor' version.json)
+          echo "prefix=${major}.${minor}" >> $GITHUB_OUTPUT
+
       - name: Generate build date tag
         id: date
-        run: echo "tag=${VERSION_PREFIX}.$(date +%Y%m%d)" >> $GITHUB_OUTPUT
-        env:
-          VERSION_PREFIX: ${{ env.VERSION_PREFIX }}
+        run: echo "tag=${{ steps.version.outputs.prefix }}.$(date +%Y%m%d)" >> $GITHUB_OUTPUT
 
       - name: Set up QEMU (for cross-platform arm64 builds)
         uses: docker/setup-qemu-action@v3
