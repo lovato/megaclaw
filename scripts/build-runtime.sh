@@ -8,7 +8,7 @@ if ! podman image exists megaclaw-base:latest; then
   podman tag ghcr.io/lovato/megaclaw-base:latest megaclaw-base:latest
 fi
 
-# Build the runtime image
+# Build the runtime image (bakes deps.json + scripts in via Dockerfile.runtime)
 podman build \
   --build-arg CACHE_BYPASS="$(date +%s)" \
   --cgroup-manager=cgroupfs \
@@ -17,10 +17,20 @@ podman build \
   -f Dockerfile.runtime \
   .
 
-# Run interactive onboarding and commit the result into the image
+# Pass 1: interactive onboarding — user completes the wizard, then container exits
 podman rm -f megaclaw-runtime 2>/dev/null || true
 podman run -it --network=host --name megaclaw-runtime \
   -v ./db:/root/.openclaw \
   megaclaw-runtime openclaw onboard
 podman commit megaclaw-runtime megaclaw-runtime
 podman rm megaclaw-runtime
+
+# Pass 2: install skill deps from deps.json into the committed image
+# Runs non-interactively inside the container, then commits the result
+echo "==> Installing skill dependencies..."
+podman run --name megaclaw-runtime-deps \
+  --network=host \
+  -v ./db:/root/.openclaw \
+  megaclaw-runtime install-deps
+podman commit megaclaw-runtime-deps megaclaw-runtime
+podman rm megaclaw-runtime-deps

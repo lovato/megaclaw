@@ -66,6 +66,11 @@ tasks:
     cmds:
       - ./scripts/test-smoke.sh
 
+  dep:add:
+    desc: "Add a ClaWHub skill to deps.json (usage: task dep:add -- <url>)"
+    cmds:
+      - ./scripts/dep-add.sh {{.CLI_ARGS}}
+
   db:backup:
     desc: Zip db/ into megaclaw-db.zip (prompts for optional password)
     cmds:
