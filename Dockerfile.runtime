@@ -2,7 +2,16 @@ FROM megaclaw-base:latest
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Onboarding config is baked into this image via build-runtime.sh (podman commit)
-# Run: task build:runtime  to build and onboard interactively
+# Bake the deps manifest and lifecycle scripts into the image
+RUN mkdir -p /etc/megaclaw
+COPY db/deps.json /etc/megaclaw/deps.json
+COPY scripts/install-deps.sh /usr/local/bin/install-deps
+COPY scripts/entrypoint.sh /entrypoint.sh
+RUN chmod +x /usr/local/bin/install-deps /entrypoint.sh
 
+# Onboarding config is baked in via build-runtime.sh (podman commit after openclaw onboard)
+# Skill deps (clawhub installs + npm packages) are baked in during the second commit pass
+# Run: task build:runtime
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["openclaw", "gateway"]
