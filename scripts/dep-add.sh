@@ -56,16 +56,10 @@ if [ -f "$SKILL_MD" ]; then
     fi
 
     if [ -n "$range" ]; then
-      resolved=$(podman run --rm --network=host megaclaw-runtime node -e "
-        const { execSync } = require('child_process');
-        const semver = require('semver');
-        try {
-          const out = execSync('npm view ${name} versions --json 2>/dev/null').toString().trim();
-          const versions = JSON.parse(out);
-          const r = semver.maxSatisfying(Array.isArray(versions) ? versions : [versions], '${range}');
-          console.log(r || '');
-        } catch(e) { console.log(''); }
-      " 2>/dev/null)
+      # npm view handles range resolution natively — no semver library needed.
+      # || true prevents set -e from killing the script if resolution fails.
+      resolved=$(podman run --rm --network=host megaclaw-runtime \
+        npm view "${name}@${range}" version 2>/dev/null | tail -1 || true)
     fi
 
     if [ -n "$resolved" ]; then
@@ -117,4 +111,4 @@ with open(path, "w") as f:
 print(f"  deps.json updated: {slug} -> npm: {packages}")
 EOF
 
-echo "==> Done. Run 'task build:runtime' to bake the new skill into the image."
+echo "==> Done. Run 'task runtime:rebuild' to bake the new skill into the image."
