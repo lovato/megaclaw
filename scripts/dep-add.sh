@@ -38,54 +38,31 @@ podman run --rm \
 # Read SKILL.md on the host to discover npm dependencies
 SKILL_MD="./db/workspace/skills/${SKILL_NAME}/SKILL.md"
 
+# Get the exact skill version from clawhub inspect (Tags: latest=X.Y.Z)
+SKILL_VERSION=$(podman run --rm --network=host megaclaw-runtime \
+  clawhub inspect "$SLUG" --no-input 2>/dev/null \
+  | grep -oP '(?<=Tags: latest=)\S+')
+echo "  skill version: ${SKILL_VERSION:-unknown}"
+
+# Get npm package names from SKILL.md (strip versions — we use the skill version instead)
 NPM_PACKAGES=""
 if [ -f "$SKILL_MD" ]; then
-  # Extract packages from lines like: npm install -g todoist-ts-cli@^0.2.0
-  NPM_PACKAGES=$(grep -oP '(?<=npm install -g )\S+' "$SKILL_MD" \
+  # Extract package names only, no version — e.g. "npm install -g todoist-ts-cli@^0.2.0" → "todoist-ts-cli"
+  NPM_NAMES=$(grep -oP '(?<=npm install -g )\S+' "$SKILL_MD" \
+    | sed 's/@.*//' \
     | sort -u \
     | tr '\n' ' ')
-  echo "  npm deps found: ${NPM_PACKAGES:-none}"
+  if [ -n "$NPM_NAMES" ] && [ -n "$SKILL_VERSION" ]; then
+    for name in $NPM_NAMES; do
+      NPM_PACKAGES="$NPM_PACKAGES ${name}@${SKILL_VERSION}"
+    done
+    echo "  npm deps: ${NPM_PACKAGES}"
+  elif [ -n "$NPM_NAMES" ]; then
+    NPM_PACKAGES="$NPM_NAMES"
+    echo "  npm deps (unversioned): ${NPM_PACKAGES}"
+  fi
 else
   echo "  Warning: SKILL.md not found at $SKILL_MD"
-fi
-
-# Resolve semver ranges to exact versions using semver.maxSatisfying (runs inside container).
-# e.g. todoist-ts-cli@^0.2.0 → todoist-ts-cli@0.2.1
-resolve_packages() {
-  local raw="$1"
-  local resolved=""
-  for pkg in $raw; do
-    # Split name and range: handles plain (foo@^1.0) and scoped (@scope/foo@^1.0)
-    if echo "$pkg" | grep -qP '^@'; then
-      name=$(echo "$pkg" | grep -oP '^@[^@]+')
-      range=$(echo "$pkg" | sed "s|^${name}||" | sed 's/^@//')
-    else
-      name=$(echo "$pkg" | cut -d@ -f1)
-      range=$(echo "$pkg" | cut -d@ -f2-)
-    fi
-    [ "$range" = "$name" ] && range="latest"
-
-    exact=$(podman run --rm --network=host megaclaw-runtime node -e "
-      const { execSync } = require('child_process');
-      const semver = require('semver');
-      const versions = JSON.parse(execSync('npm view ${name} versions --json 2>/dev/null').toString().trim());
-      const result = semver.maxSatisfying(Array.isArray(versions) ? versions : [versions], '${range}');
-      console.log(result || '');
-    " 2>/dev/null)
-
-    if [ -n "$exact" ]; then
-      resolved="$resolved ${name}@${exact}"
-      echo "  resolved: $pkg → ${name}@${exact}" >&2
-    else
-      resolved="$resolved $pkg"
-      echo "  warning: could not resolve $pkg — keeping as-is" >&2
-    fi
-  done
-  echo "$resolved"
-}
-
-if [ -n "$NPM_PACKAGES" ]; then
-  NPM_PACKAGES=$(resolve_packages "$NPM_PACKAGES")
 fi
 
 # Update deps.json on the host
@@ -93,7 +70,7 @@ python3 - "$SLUG" $NPM_PACKAGES <<'EOF'
 import json, os, sys
 
 slug = sys.argv[1]
-packages = sys.argv[2:]  # already exact versions from resolve step
+packages = sys.argv[2:]
 
 path = "db/deps.json"
 
