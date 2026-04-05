@@ -38,32 +38,53 @@ podman run --rm \
 # Read SKILL.md on the host to discover npm dependencies
 SKILL_MD="./db/workspace/skills/${SKILL_NAME}/SKILL.md"
 
-# Get the exact skill version from clawhub inspect (Tags: latest=X.Y.Z)
-SKILL_VERSION=$(podman run --rm --network=host megaclaw-runtime \
-  clawhub inspect "$SLUG" --no-input 2>/dev/null \
-  | grep -oP '(?<=Tags: latest=)\S+')
-echo "  skill version: ${SKILL_VERSION:-unknown}"
-
-# Get npm package names from SKILL.md (strip versions — we use the skill version instead)
+# Get npm package names and version ranges from SKILL.md.
+# Resolve ranges to exact versions using semver.maxSatisfying; fall back to @latest.
 NPM_PACKAGES=""
 if [ -f "$SKILL_MD" ]; then
-  # Extract package names only, no version — e.g. "npm install -g todoist-ts-cli@^0.2.0" → "todoist-ts-cli"
-  NPM_NAMES=$(grep -oP '(?<=npm install -g )\S+' "$SKILL_MD" \
-    | sed 's/@.*//' \
-    | sort -u \
-    | tr '\n' ' ')
-  if [ -n "$NPM_NAMES" ] && [ -n "$SKILL_VERSION" ]; then
-    for name in $NPM_NAMES; do
-      NPM_PACKAGES="$NPM_PACKAGES ${name}@${SKILL_VERSION}"
-    done
-    echo "  npm deps: ${NPM_PACKAGES}"
-  elif [ -n "$NPM_NAMES" ]; then
-    NPM_PACKAGES="$NPM_NAMES"
-    echo "  npm deps (unversioned): ${NPM_PACKAGES}"
-  fi
+  RAW_DEPS=$(grep -oP '(?<=npm install -g )\S+' "$SKILL_MD" | sort -u)
+  echo "  npm deps in SKILL.md: ${RAW_DEPS:-none}"
+  for dep in $RAW_DEPS; do
+    # Split into name and range (handles scoped packages like @scope/pkg@^1.0)
+    if echo "$dep" | grep -qP '^@'; then
+      name=$(echo "$dep" | grep -oP '^@[^/]+/[^@]+')
+      range=$(echo "$dep" | sed "s|^${name}@\?||")
+    else
+      name=$(echo "$dep" | cut -d@ -f1)
+      range=$(echo "$dep" | cut -d@ -f2-)
+      [ "$range" = "$name" ] && range=""
+    fi
+
+    if [ -n "$range" ]; then
+      resolved=$(podman run --rm --network=host megaclaw-runtime node -e "
+        const { execSync } = require('child_process');
+        const semver = require('semver');
+        try {
+          const out = execSync('npm view ${name} versions --json 2>/dev/null').toString().trim();
+          const versions = JSON.parse(out);
+          const r = semver.maxSatisfying(Array.isArray(versions) ? versions : [versions], '${range}');
+          console.log(r || '');
+        } catch(e) { console.log(''); }
+      " 2>/dev/null)
+    fi
+
+    if [ -n "$resolved" ]; then
+      echo "  resolved: ${dep} → ${name}@${resolved}"
+      NPM_PACKAGES="$NPM_PACKAGES ${name}@${resolved}"
+    else
+      echo "  fallback to latest: ${name}"
+      NPM_PACKAGES="$NPM_PACKAGES ${name}@latest"
+    fi
+  done
 else
   echo "  Warning: SKILL.md not found at $SKILL_MD"
 fi
+
+# Get the skill version from clawhub inspect (informational only)
+SKILL_VERSION=$(podman run --rm --network=host megaclaw-runtime \
+  clawhub inspect "$SLUG" --no-input 2>/dev/null \
+  | grep -oP '(?<=Tags: latest=)\S+')
+[ -n "$SKILL_VERSION" ] && echo "  skill version: $SKILL_VERSION"
 
 # Update deps.json on the host
 python3 - "$SLUG" $NPM_PACKAGES <<'EOF'
