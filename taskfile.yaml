@@ -71,6 +71,14 @@ tasks:
     cmds:
       - ./scripts/dep-add.sh {{.CLI_ARGS}}
 
+  update:skills:
+    desc: Update installed skill definitions inside the running container
+    preconditions:
+      - sh: podman ps --filter name=megaclaw --filter status=running -q | grep -q .
+        msg: "Error: megaclaw container is not running. Run 'task run' or 'task start' first."
+    cmds:
+      - podman exec megaclaw clawhub update --no-input
+
   db:backup:
     desc: Zip db/ into megaclaw-db.zip (prompts for optional password)
     cmds:
