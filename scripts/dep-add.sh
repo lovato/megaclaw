@@ -20,9 +20,10 @@ if ! podman image exists megaclaw-runtime; then
   exit 1
 fi
 
-# Extract slug: https://clawhub.ai/mjrussell/todoist → mjrussell/todoist
-SLUG=$(echo "$URL" | sed 's|.*clawhub\.ai/||')
-SKILL_NAME="${SLUG##*/}"
+# Extract slug: https://clawhub.ai/mjrussell/todoist → todoist
+# ClaWHub slugs are the skill name only — the author segment in the URL is not part of the slug.
+SLUG=$(echo "$URL" | sed 's|.*clawhub\.ai/[^/]*/||; s|.*clawhub\.ai/||')
+SKILL_NAME="$SLUG"
 
 echo "==> Adding skill: $SLUG"
 
