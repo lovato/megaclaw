@@ -1,83 +1,96 @@
 version: '3'
 
 tasks:
-  build:base:
-    desc: Build the base image locally (slow — prefer pull:base on Pi)
-    silent: true
-    cmds:
-      - ./scripts/build-base.sh
-      - echo "Base image built! Run 'task build:runtime' to onboard."
 
-  pull:base:
+  # ---------------------------------------------------------------------------
+  # base: manage the megaclaw-base image
+  # ---------------------------------------------------------------------------
+
+  base:pull:
     desc: Pull the pre-built base image from GHCR (faster than building locally)
     cmds:
       - podman pull ghcr.io/lovato/megaclaw-base:latest
       - podman tag ghcr.io/lovato/megaclaw-base:latest megaclaw-base:latest
-      - echo "Base image ready. Run 'task build:runtime' to onboard."
+      - echo "Base image ready. Run 'task runtime:build' to onboard."
 
-  build:runtime:
-    desc: Run interactive onboarding and bake config into the runtime image (local only — never push)
+  base:build:
+    desc: Build the base image locally (slow — prefer base:pull on Pi)
+    silent: true
+    cmds:
+      - ./scripts/build-base.sh
+      - echo "Base image built. Run 'task runtime:build' to onboard."
+
+  base:ssh:
+    desc: Open a shell in the base image
+    cmds:
+      - ./scripts/ssh-base.sh
+
+  # ---------------------------------------------------------------------------
+  # runtime: manage the megaclaw-runtime image and container
+  # ---------------------------------------------------------------------------
+
+  runtime:build:
+    desc: "First-time setup: interactive onboarding + install skill deps (creates db/)"
     silent: true
     cmds:
       - ./scripts/build-runtime.sh
-      - echo "Onboarding complete! Run 'task run' to start OpenClaw."
+      - echo "Onboarding complete. Run 'task runtime:run' to start OpenClaw."
 
-  run:
-    desc: Run the OpenClaw Runtime container (interactive)
+  runtime:rebuild:
+    desc: "Rebuild runtime without onboarding — reinstalls skill deps from existing db/"
+    silent: true
+    preconditions:
+      - sh: "[ -d ./db ] && [ -n \"$(ls -A ./db 2>/dev/null)\" ]"
+        msg: "Error: db/ is empty. Run 'task runtime:build' first."
+    cmds:
+      - ./scripts/rebuild-runtime.sh
+      - echo "Rebuild complete. Run 'task runtime:run' to start OpenClaw."
+
+  runtime:run:
+    desc: Start the OpenClaw gateway (foreground, interactive)
     silent: true
     preconditions:
       - sh: podman image exists megaclaw-runtime
-        msg: "Error: Runtime image not found. Run 'task build:runtime' first."
+        msg: "Error: Runtime image not found. Run 'task runtime:build' first."
     cmds:
       - ./scripts/run.sh
 
-  start:
-    desc: Start OpenClaw Runtime container in the background
+  runtime:start:
+    desc: Start the OpenClaw gateway in the background
     silent: true
     preconditions:
       - sh: podman image exists megaclaw-runtime
-        msg: "Error: Runtime image not found. Run 'task build:runtime' first."
+        msg: "Error: Runtime image not found. Run 'task runtime:build' first."
     cmds:
       - ./scripts/run.sh daemon
 
-  stop:
+  runtime:stop:
     desc: Stop and remove the megaclaw container
     cmds:
       - podman stop megaclaw 2>/dev/null || true
       - podman rm -f megaclaw 2>/dev/null || true
 
-  purge:
-    desc: Force-remove the megaclaw container (use after ctrl-c or crash)
-    cmds:
-      - podman rm -f megaclaw 2>/dev/null || true
-
-  ssh:base:
-    desc: Jump into base container interactively
-    cmds:
-      - ./scripts/ssh-base.sh
-
-  ssh:runtime:
-    desc: Jump into runtime container interactively
+  runtime:ssh:
+    desc: Open a shell in the running megaclaw container
     cmds:
       - ./scripts/ssh-runtime.sh
 
-  test:
-    desc: Run smoke tests (syntax check scripts, validate taskfile and Dockerfiles)
-    cmds:
-      - ./scripts/test-smoke.sh
-
-  dep:add:
-    desc: "Add a ClaWHub skill to deps.json (usage: task dep:add -- <url>)"
+  runtime:skills:add:
+    desc: "Add a ClaWHub skill to deps.json (usage: task runtime:skills:add -- <url>)"
     cmds:
       - ./scripts/dep-add.sh {{.CLI_ARGS}}
 
-  update:skills:
-    desc: Update installed skill definitions inside the running container
+  runtime:skills:update:
+    desc: Update skill definitions in the running container (clawhub update, no restart)
     preconditions:
       - sh: podman ps --filter name=megaclaw --filter status=running -q | grep -q .
-        msg: "Error: megaclaw container is not running. Run 'task run' or 'task start' first."
+        msg: "Error: megaclaw container is not running. Run 'task runtime:run' or 'task runtime:start' first."
     cmds:
       - podman exec megaclaw clawhub update --no-input
+
+  # ---------------------------------------------------------------------------
+  # db: manage the personal OpenClaw config and data
+  # ---------------------------------------------------------------------------
 
   db:backup:
     desc: Zip db/ into megaclaw-db.zip (prompts for optional password)
@@ -90,8 +103,17 @@ tasks:
       - ./scripts/backup-restore.sh
 
   db:wipe:
-    desc: Wipe the database (remove all config and data)
+    desc: Wipe db/ — removes all config and data (cannot be undone)
     silent: true
     cmds:
       - rm -rf ./db/*
-      - echo "Database wiped. Run 'task build:runtime' to reconfigure."
+      - echo "Database wiped. Run 'task runtime:build' to reconfigure."
+
+  # ---------------------------------------------------------------------------
+  # test
+  # ---------------------------------------------------------------------------
+
+  test:
+    desc: Run smoke tests (syntax check scripts, validate taskfile and Dockerfiles)
+    cmds:
+      - ./scripts/test-smoke.sh
