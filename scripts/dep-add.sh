@@ -40,9 +40,9 @@ SKILL_MD="./db/workspace/skills/${SKILL_NAME}/SKILL.md"
 
 NPM_PACKAGES=""
 if [ -f "$SKILL_MD" ]; then
-  # Extract package names from lines like: npm install -g todoist-ts-cli@^0.2.0
+  # Extract packages from lines like: npm install -g todoist-ts-cli@0.2.1
+  # Keep the version as-is — if the skill pins a version, respect it.
   NPM_PACKAGES=$(grep -oP '(?<=npm install -g )\S+' "$SKILL_MD" \
-    | sed 's/@[^@]*$//' \
     | sort -u \
     | tr '\n' ' ')
   echo "  npm deps found: ${NPM_PACKAGES:-none}"
@@ -55,7 +55,16 @@ python3 - "$SLUG" $NPM_PACKAGES <<'EOF'
 import json, os, sys
 
 slug = sys.argv[1]
-packages = [f"{p}@latest" for p in sys.argv[2:]]
+raw_packages = sys.argv[2:]
+
+# Keep pinned versions from SKILL.md; only add @latest when no version is specified.
+# Handles plain packages (foo, foo@1.0.0) and scoped ones (@scope/foo, @scope/foo@1.0.0).
+def normalize(pkg):
+    if pkg.startswith("@"):
+        return pkg if pkg.count("@") >= 2 else f"{pkg}@latest"
+    return pkg if "@" in pkg else f"{pkg}@latest"
+
+packages = [normalize(p) for p in raw_packages]
 
 path = "db/deps.json"
 if os.path.exists(path):
