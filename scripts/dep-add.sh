@@ -49,17 +49,31 @@ else
   echo "  Warning: SKILL.md not found at $SKILL_MD"
 fi
 
-# Resolve semver ranges to exact versions via npm view (runs inside container).
+# Resolve semver ranges to exact versions using semver.maxSatisfying (runs inside container).
 # e.g. todoist-ts-cli@^0.2.0 → todoist-ts-cli@0.2.1
 resolve_packages() {
   local raw="$1"
   local resolved=""
   for pkg in $raw; do
-    exact=$(podman run --rm --network=host megaclaw-runtime \
-      npm view "$pkg" version 2>/dev/null | tail -1)
+    # Split name and range: handles plain (foo@^1.0) and scoped (@scope/foo@^1.0)
+    if echo "$pkg" | grep -qP '^@'; then
+      name=$(echo "$pkg" | grep -oP '^@[^@]+')
+      range=$(echo "$pkg" | sed "s|^${name}||" | sed 's/^@//')
+    else
+      name=$(echo "$pkg" | cut -d@ -f1)
+      range=$(echo "$pkg" | cut -d@ -f2-)
+    fi
+    [ "$range" = "$name" ] && range="latest"
+
+    exact=$(podman run --rm --network=host megaclaw-runtime node -e "
+      const { execSync } = require('child_process');
+      const semver = require('semver');
+      const versions = JSON.parse(execSync('npm view ${name} versions --json 2>/dev/null').toString().trim());
+      const result = semver.maxSatisfying(Array.isArray(versions) ? versions : [versions], '${range}');
+      console.log(result || '');
+    " 2>/dev/null)
+
     if [ -n "$exact" ]; then
-      # strip any range specifier from the package name before appending version
-      name=$(echo "$pkg" | sed 's/@[^@]*$//' | sed 's/^\(@[^@]*\)@.*/\1/')
       resolved="$resolved ${name}@${exact}"
       echo "  resolved: $pkg → ${name}@${exact}" >&2
     else
