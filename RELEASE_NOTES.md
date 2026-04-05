@@ -1,18 +1,38 @@
 # Release Notes
 
-## v1.2.0 — Skill Dependency Management (2026-04-04)
+## v1.2.0 — Skill Dependency Management (2026-04-04 – 2026-04-05)
 
 ### New features
 
-- **`task dep:add -- <clawhub-url>`** — Add a ClaWHub skill to your local dependency manifest with one command. Installs the skill in a throwaway container, parses its `SKILL.md` for required npm packages, resolves latest versions, and updates `db/deps.json` automatically.
-- **`deps.default.json`** — Empty skill manifest template shipped in the repo. Seeded into `db/deps.json` automatically on first `task build:runtime`.
-- **`db/deps.json`** — Personal skill manifest (gitignored). Tracks ClaWHub skills and their npm dependencies. Edit manually or via `task dep:add`.
-- **Two-pass `build-runtime`** — After interactive onboarding (`podman commit` pass 1), a second non-interactive pass runs `install-deps` and commits again. Skills and their binaries are baked into the image.
+- **`task runtime:skills:add -- <clawhub-url>`** — Add a ClaWHub skill to your local dependency manifest with one command. Installs the skill in a throwaway container, parses its `SKILL.md` for required npm packages, resolves the version range to an exact pin via `npm view`, and updates `db/deps.json` automatically.
+- **`deps.default.json`** — Empty skill manifest template shipped in the repo. Seeded into `db/deps.json` automatically on first `task runtime:build`.
+- **`db/deps.json`** — Personal skill manifest (gitignored). Tracks ClaWHub skills and their npm dependencies. Edit manually or via `task runtime:skills:add`.
+- **`db/config/`** — Persists `/root/.config` across rebuilds. Tool auth tokens (e.g. `todoist auth`) are stored here and survive `runtime:rebuild`.
+- **Two-pass `runtime:build`** — After interactive onboarding (`podman commit` pass 1), a second non-interactive pass runs `install-deps` and commits again. Skills and their binaries are baked into the image.
+- **`task runtime:rebuild`** — Skips interactive onboarding entirely. Rebuilds the image and reinstalls skill deps from the existing `db/`. Use this after adding a skill — much faster than a full `runtime:build`.
 - **`scripts/install-deps.sh`** — Runs inside the container during build. Installs `core.npm` packages, then ClaWHub skills, then each skill's npm dependencies.
-- **`scripts/entrypoint.sh`** — Runs inside the container on every `task run`. Calls `clawhub update` per skill before handing off to `openclaw gateway`. No-op for other commands (onboard, install-deps, shell).
+- **`scripts/entrypoint.sh`** — Minimal passthrough. No longer auto-updates skills on startup (was noisy and error-prone). Use `task runtime:skills:update` to refresh skill definitions explicitly.
+- **`task runtime:skills:update`** — Runs `clawhub update` on the live running container. Updates skill definition files without a rebuild or restart.
 - **ClaWHub in base image** — `clawhub@latest` is now installed in `Dockerfile.base` via npm, guaranteeing it is present regardless of onboarding choices.
-- **Weekly CI builds** — GitHub Actions now rebuilds `megaclaw-base` on a Monday 03:00 UTC schedule, ensuring OpenClaw and ClaWHub are always on their latest versions.
-- **Versioned image tags** — Published images are tagged `latest`, `1.0.YYYYMMDD`, and `sha-<commit>`. The date tag lets you pin to a specific weekly build.
+- **Weekly CI builds** — GitHub Actions rebuilds `megaclaw-base` every Monday at 03:00 UTC, ensuring OpenClaw and ClaWHub are always on their latest versions.
+- **Versioned image tags** — Published images are tagged `latest`, `major.minor.YYYYMMDD`, and `sha-<commit>`. The date tag lets you pin to a specific weekly build.
+- **`version.json`** — Single source of truth for `major` and `minor`. The CI workflow reads it to construct the image tag. Bump this file to cut a new release line.
+- **`RELEASE_NOTES.md`** — This file. Maintained alongside the codebase.
+
+### Breaking changes
+
+- All tasks renamed to `base:` / `runtime:` / `db:` namespaces:
+  - `build:base` → `base:build`, `pull:base` → `base:pull`, `ssh:base` → `base:ssh`
+  - `build:runtime` → `runtime:build`, `run` → `runtime:run`, `start` → `runtime:start`, `stop` → `runtime:stop`, `ssh:runtime` → `runtime:ssh`
+  - `dep:add` → `runtime:skills:add`, `update:skills` → `runtime:skills:update`
+  - `db:wipe` / `db:backup` / `db:restore` unchanged
+  - `purge` removed — `runtime:stop` already force-removes the container
+
+### Fixes
+
+- `runtime:skills:add` now correctly extracts the ClaWHub slug (skill name only, not `author/skill`).
+- npm version ranges from `SKILL.md` (e.g. `^0.2.0`) are resolved to the exact highest matching version via `npm view` before being written to `deps.json`.
+- `task runtime:run` no longer fails after a ctrl-c — stale container is removed before each start.
 
 ---
 
