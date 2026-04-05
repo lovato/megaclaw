@@ -23,10 +23,14 @@ podman build \
   -f Dockerfile.runtime \
   .
 
+# Ensure persistent config dirs exist before mounting
+mkdir -p ./db/config
+
 # Pass 1: interactive onboarding — user completes the wizard, then container exits
 podman rm -f megaclaw-runtime 2>/dev/null || true
 podman run -it --network=host --name megaclaw-runtime \
   -v ./db:/root/.openclaw \
+  -v ./db/config:/root/.config \
   megaclaw-runtime openclaw onboard
 podman commit megaclaw-runtime megaclaw-runtime
 podman rm megaclaw-runtime
@@ -37,6 +41,7 @@ echo "==> Installing skill dependencies..."
 podman run --name megaclaw-runtime-deps \
   --network=host \
   -v ./db:/root/.openclaw \
+  -v ./db/config:/root/.config \
   megaclaw-runtime install-deps
 podman commit megaclaw-runtime-deps megaclaw-runtime
 podman rm megaclaw-runtime-deps

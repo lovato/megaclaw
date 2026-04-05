@@ -29,9 +29,11 @@ echo "==> Adding skill: $SLUG"
 
 # Install skill definition into ./db via a throwaway container
 echo "==> Fetching skill definition from ClaWHub..."
+mkdir -p ./db/config
 podman run --rm \
   --network=host \
   -v "./db:/root/.openclaw" \
+  -v "./db/config:/root/.config" \
   megaclaw-runtime \
   clawhub install "$SLUG" --force --no-input
 

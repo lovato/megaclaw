@@ -32,12 +32,16 @@ podman build \
   -f Dockerfile.runtime \
   .
 
+# Ensure persistent config dirs exist before mounting
+mkdir -p ./db/config
+
 # Install skill deps from deps.json — no onboarding, single commit
 echo "==> Installing skill dependencies..."
 podman rm -f megaclaw-runtime-deps 2>/dev/null || true
 podman run --name megaclaw-runtime-deps \
   --network=host \
   -v ./db:/root/.openclaw \
+  -v ./db/config:/root/.config \
   megaclaw-runtime install-deps
 podman commit megaclaw-runtime-deps megaclaw-runtime
 podman rm megaclaw-runtime-deps
