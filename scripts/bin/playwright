@@ -1,0 +1,4 @@
+#!/bin/bash
+# MegaClaw wrapper: exposes `playwright` as a direct command.
+# Playwright is not installed as a global binary — this wrapper calls it via npx.
+exec npx -y playwright "$@"

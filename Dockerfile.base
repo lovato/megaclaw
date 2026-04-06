@@ -31,6 +31,13 @@ RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 # Install ClaWHub CLI — core skill manager, guaranteed present regardless of onboarding choices
 RUN npm install -g clawhub@latest
 
+# Inject MegaClaw built-in skills into OpenClaw's bundled skills directory
+COPY skills/ /usr/lib/node_modules/openclaw/skills/
+
+# Inject MegaClaw wrapper scripts into PATH (scripts/bin/ → /usr/local/bin/)
+COPY scripts/bin/ /usr/local/bin/
+RUN chmod +x /usr/local/bin/*
+
 WORKDIR /root
 
 CMD ["/bin/bash"]
