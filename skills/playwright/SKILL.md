@@ -124,12 +124,11 @@ node /tmp/pw-spa.mjs
 
 ## Import Path
 
-Playwright is installed globally. Scripts can import directly:
+Always use the absolute path — bare `'playwright'` imports fail inside the container:
 
 ```js
-import { chromium } from 'playwright';
-// or:
-const { chromium } = require('playwright');
+import pkg from '/usr/lib/node_modules/playwright/index.js';
+const { chromium, firefox, webkit } = pkg;
 ```
 
 ## Tips
