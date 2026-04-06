@@ -31,6 +31,12 @@ RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 # Install ClaWHub CLI — core skill manager, guaranteed present regardless of onboarding choices
 RUN npm install -g clawhub@latest
 
+# Playwright is pre-installed at /usr/lib/node_modules/playwright by the base image.
+# Symlink it under /root/node_modules so ESM scripts anywhere under /root/ can import it directly.
+# Set PLAYWRIGHT_BROWSERS_PATH so the npm module finds the pre-installed browsers in the image.
+RUN ln -s /usr/lib/node_modules /root/node_modules
+ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
+
 # Inject MegaClaw built-in skills into OpenClaw's bundled skills directory
 COPY skills/ /usr/lib/node_modules/openclaw/skills/
 
