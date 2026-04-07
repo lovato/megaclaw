@@ -31,9 +31,13 @@ RUN curl -fsSL https://openclaw.ai/install.sh | bash -s -- --no-onboard
 # Install ClaWHub CLI — core skill manager, guaranteed present regardless of onboarding choices
 RUN npm install -g clawhub@latest
 
-# Playwright is pre-installed at /usr/lib/node_modules/playwright by the base image.
-# Symlink it under /root/node_modules so ESM scripts anywhere under /root/ can import it directly.
-# Set PLAYWRIGHT_BROWSERS_PATH so the npm module finds the pre-installed browsers in the image.
+# The MS Playwright base image ships browsers but NOT the npm package.
+# Install it globally so scripts can import playwright from /usr/lib/node_modules/playwright.
+# Pin the version to match the base image tag above (v1.59.1) so the npm package and
+# the pre-installed browsers stay in sync. Update both together when upgrading.
+# PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 avoids re-downloading browsers already in /ms-playwright.
+RUN PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 npm install -g playwright@1.59.1
+# Symlink /usr/lib/node_modules → /root/node_modules so ESM scripts under /root/ can resolve it.
 RUN ln -s /usr/lib/node_modules /root/node_modules
 ENV PLAYWRIGHT_BROWSERS_PATH=/ms-playwright
 
